@@ -2,39 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Light theme with teal/mint accents - FantasyMint inspired */
 
 @layer base {
   :root {
-    --background: 220 25% 10%;
-    --foreground: 210 20% 98%;
+    --background: 0 0% 98%;
+    --foreground: 220 25% 10%;
 
-    --card: 220 20% 14%;
-    --card-foreground: 210 20% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
 
-    --popover: 220 20% 14%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
 
-    --primary: 200 100% 50%;
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 20%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 220 15% 95%;
+    --secondary-foreground: 220 25% 20%;
 
-    --muted: 220 15% 18%;
-    --muted-foreground: 210 10% 60%;
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 142 76% 45%;
+    --accent: 160 84% 39%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 22%;
-    --input: 220 15% 22%;
-    --ring: 200 100% 50%;
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 160 84% 39%;
 
     --radius: 0.75rem;
 
@@ -44,11 +42,45 @@ All colors MUST be HSL.
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(200 100% 50%) 0%, hsl(220 100% 60%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(220 20% 16%) 0%, hsl(220 25% 12%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(142 76% 45%) 0%, hsl(150 80% 40%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(170 70% 45%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 15% 98%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(170 70% 45%) 100%);
+    --gradient-dark: linear-gradient(135deg, hsl(220 25% 12%) 0%, hsl(220 30% 18%) 100%);
     
-    --shadow-glow: 0 0 30px hsl(200 100% 50% / 0.15);
+    --shadow-glow: 0 0 30px hsl(160 84% 39% / 0.15);
+    --shadow-card: 0 4px 20px hsl(220 25% 10% / 0.08);
+  }
+
+  .dark {
+    --background: 220 25% 10%;
+    --foreground: 210 20% 98%;
+
+    --card: 220 20% 14%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 220 20% 14%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 160 84% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 20%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 220 15% 18%;
+    --muted-foreground: 210 10% 60%;
+
+    --accent: 160 84% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 22%;
+    --input: 220 15% 22%;
+    --ring: 160 84% 45%;
+
+    --shadow-glow: 0 0 30px hsl(160 84% 45% / 0.15);
     --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.3);
   }
 }
@@ -59,6 +91,24 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }
