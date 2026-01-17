@@ -1,14 +1,21 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, AlertCircle } from "lucide-react";
+import { TrendingUp, AlertCircle, Plus, CheckCircle2, XCircle } from "lucide-react";
+import { useDemo } from "@/contexts/DemoContext";
+import { NewBetModal } from "@/components/modals/NewBetModal";
 
 export const BettingScreen = () => {
-  const activeBets = [
-    { game: "LAL vs GSW", bet: "LAL -3.5", stake: "$100", odds: "-110", status: "pending" },
-    { game: "MIA vs BOS", bet: "Over 218.5", stake: "$50", odds: "+105", status: "pending" },
-    { game: "DAL vs PHX", bet: "DAL ML", stake: "$75", odds: "+150", status: "won", payout: "+$112.50" },
-  ];
+  const { bets, platforms, weeklyProfit, addBet, resolveBet } = useDemo();
+  const [newBetOpen, setNewBetOpen] = useState(false);
+
+  const pendingBets = bets.filter(b => b.status === "pending");
+  const resolvedBets = bets.filter(b => b.status !== "pending");
+  const winCount = bets.filter(b => b.status === "won").length;
+  const totalResolved = resolvedBets.length;
+  const winRate = totalResolved > 0 ? Math.round((winCount / totalResolved) * 100) : 0;
+  const roi = weeklyProfit > 0 ? Math.round((weeklyProfit / 500) * 100) : 0;
 
   return (
     <div className="space-y-6 pb-24">
@@ -26,15 +33,19 @@ export const BettingScreen = () => {
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <div className="text-2xl font-bold text-accent">+$247</div>
+            <div className={`text-2xl font-bold ${weeklyProfit >= 0 ? "text-accent" : "text-destructive"}`}>
+              {weeklyProfit >= 0 ? "+" : ""}${Math.abs(weeklyProfit).toFixed(0)}
+            </div>
             <div className="text-xs text-muted-foreground">Profit</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-foreground">12/18</div>
+            <div className="text-2xl font-bold text-foreground">{winCount}/{totalResolved}</div>
             <div className="text-xs text-muted-foreground">Win Rate</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-primary">+18%</div>
+            <div className={`text-2xl font-bold ${roi >= 0 ? "text-primary" : "text-destructive"}`}>
+              {roi >= 0 ? "+" : ""}{roi}%
+            </div>
             <div className="text-xs text-muted-foreground">ROI</div>
           </div>
         </div>
@@ -42,44 +53,96 @@ export const BettingScreen = () => {
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Active Bets</h2>
-          <Button size="sm">New Bet</Button>
+          <h2 className="text-xl font-semibold">Active Bets ({pendingBets.length})</h2>
+          <Button size="sm" onClick={() => setNewBetOpen(true)}>
+            <Plus className="w-4 h-4 mr-1" />
+            New Bet
+          </Button>
         </div>
 
         <div className="space-y-3">
-          {activeBets.map((bet, i) => (
-            <Card key={i} className="p-4 hover:border-primary/50 transition-colors">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-foreground">{bet.game}</h4>
-                  <Badge
-                    variant={
-                      bet.status === "won"
-                        ? "default"
-                        : bet.status === "lost"
-                        ? "destructive"
-                        : "secondary"
-                    }
-                    className={bet.status === "won" ? "bg-accent hover:bg-accent" : ""}
-                  >
-                    {bet.status}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{bet.bet}</span>
-                  <span className="text-foreground">{bet.odds}</span>
-                </div>
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <span className="text-sm text-muted-foreground">Stake: {bet.stake}</span>
-                  {bet.payout && (
-                    <span className="text-sm font-semibold text-accent">{bet.payout}</span>
-                  )}
-                </div>
-              </div>
+          {pendingBets.length === 0 ? (
+            <Card className="p-6 text-center border-dashed">
+              <p className="text-muted-foreground mb-3">No active bets</p>
+              <Button onClick={() => setNewBetOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Place Your First Bet
+              </Button>
             </Card>
-          ))}
+          ) : (
+            pendingBets.map((bet) => (
+              <Card key={bet.id} className="p-4 hover:border-primary/50 transition-colors">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-foreground">{bet.game}</h4>
+                    <Badge variant="secondary">{bet.status}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{bet.bet}</span>
+                    <span className="text-foreground">{bet.odds}</span>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-border">
+                    <span className="text-sm text-muted-foreground">
+                      {bet.platform} • ${bet.stake.toFixed(2)}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="text-accent border-accent/50 hover:bg-accent/10"
+                        onClick={() => resolveBet(bet.id, "won")}
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-1" />
+                        Won
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="text-destructive border-destructive/50 hover:bg-destructive/10"
+                        onClick={() => resolveBet(bet.id, "lost")}
+                      >
+                        <XCircle className="w-4 h-4 mr-1" />
+                        Lost
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
         </div>
       </div>
+
+      {resolvedBets.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Recent Results</h2>
+          <div className="space-y-3">
+            {resolvedBets.slice(0, 5).map((bet) => (
+              <Card key={bet.id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-foreground">{bet.game}</h4>
+                    <span className="text-sm text-muted-foreground">{bet.bet}</span>
+                  </div>
+                  <div className="text-right">
+                    <Badge
+                      variant={bet.status === "won" ? "default" : "destructive"}
+                      className={bet.status === "won" ? "bg-accent hover:bg-accent" : ""}
+                    >
+                      {bet.status}
+                    </Badge>
+                    {bet.payout && (
+                      <div className="text-sm font-semibold text-accent mt-1">
+                        +${bet.payout.toFixed(2)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       <Card className="p-5 border-destructive/30 bg-destructive/5">
         <div className="flex items-start gap-3">
@@ -87,11 +150,18 @@ export const BettingScreen = () => {
           <div className="space-y-1">
             <h3 className="font-semibold text-foreground">AI Risk Assessment</h3>
             <p className="text-sm text-muted-foreground">
-              You've placed 8 bets this week. Consider your bankroll management and avoid chasing losses.
+              You've placed {bets.length} bets this week. Consider your bankroll management and avoid chasing losses.
             </p>
           </div>
         </div>
       </Card>
+
+      <NewBetModal
+        open={newBetOpen}
+        onClose={() => setNewBetOpen(false)}
+        onSubmit={addBet}
+        platforms={platforms}
+      />
     </div>
   );
 };
