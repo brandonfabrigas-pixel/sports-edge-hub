@@ -1,7 +1,18 @@
 import { DashboardCard } from "../DashboardCard";
 import { TrendingUp, Trophy, Wallet, Target } from "lucide-react";
+import { useDemo } from "@/contexts/DemoContext";
 
 export const HomeScreen = () => {
+  const { bets, activities, totalBalance, weeklyProfit } = useDemo();
+  
+  const pendingBets = bets.filter(b => b.status === "pending").length;
+  const winCount = bets.filter(b => b.status === "won").length;
+  const totalResolved = bets.filter(b => b.status !== "pending").length;
+  const winRate = totalResolved > 0 ? Math.round((winCount / totalResolved) * 100) : 0;
+  const roi = weeklyProfit > 0 ? Math.round((weeklyProfit / 500) * 100) : 0;
+
+  const recentActivities = activities.slice(0, 5);
+
   return (
     <div className="space-y-6 pb-24">
       <div className="space-y-2">
@@ -14,58 +25,60 @@ export const HomeScreen = () => {
       <div className="grid grid-cols-2 gap-4">
         <DashboardCard
           title="Total Balance"
-          value="$1,247"
-          subtitle="+$182 this week"
+          value={`$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+          subtitle={`${weeklyProfit >= 0 ? "+" : ""}$${weeklyProfit.toFixed(0)} this week`}
           icon={Wallet}
-          trend="up"
+          trend={weeklyProfit >= 0 ? "up" : "down"}
         />
         <DashboardCard
           title="Active Bets"
-          value="8"
-          subtitle="5 pending"
+          value={bets.length.toString()}
+          subtitle={`${pendingBets} pending`}
           icon={TrendingUp}
           trend="neutral"
         />
         <DashboardCard
-          title="Fantasy Wins"
-          value="12/15"
-          subtitle="80% win rate"
+          title="Win Rate"
+          value={`${winCount}/${totalResolved}`}
+          subtitle={`${winRate}% success`}
           icon={Trophy}
-          trend="up"
+          trend={winRate >= 50 ? "up" : "down"}
         />
         <DashboardCard
           title="ROI"
-          value="+18%"
+          value={`${roi >= 0 ? "+" : ""}${roi}%`}
           subtitle="Last 30 days"
           icon={Target}
-          trend="up"
+          trend={roi >= 0 ? "up" : "down"}
         />
       </div>
 
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Recent Activity</h2>
         <div className="space-y-3">
-          {[
-            { type: "win", text: "Won Fantasy League - Week 14", amount: "+$250" },
-            { type: "win", text: "Parlay Hit - NBA", amount: "+$180" },
-            { type: "loss", text: "Single Bet - NFL", amount: "-$50" },
-          ].map((activity, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between p-4 bg-card rounded-lg border border-border"
-            >
-              <span className="text-sm text-foreground">{activity.text}</span>
-              <span
-                className={
-                  activity.type === "win"
-                    ? "text-accent font-semibold"
-                    : "text-destructive font-semibold"
-                }
-              >
-                {activity.amount}
-              </span>
+          {recentActivities.length === 0 ? (
+            <div className="p-4 bg-card rounded-lg border border-border text-center text-muted-foreground">
+              No recent activity
             </div>
-          ))}
+          ) : (
+            recentActivities.map((activity) => (
+              <div
+                key={activity.id}
+                className="flex items-center justify-between p-4 bg-card rounded-lg border border-border"
+              >
+                <span className="text-sm text-foreground">{activity.text}</span>
+                <span
+                  className={
+                    activity.amount >= 0
+                      ? "text-accent font-semibold"
+                      : "text-destructive font-semibold"
+                  }
+                >
+                  {activity.amount >= 0 ? "+" : ""}${Math.abs(activity.amount).toFixed(0)}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

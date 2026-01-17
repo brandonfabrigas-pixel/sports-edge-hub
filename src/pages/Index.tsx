@@ -5,6 +5,7 @@ import { FantasyScreen } from "@/components/screens/FantasyScreen";
 import { BettingScreen } from "@/components/screens/BettingScreen";
 import { DepositScreen } from "@/components/screens/DepositScreen";
 import { LandingPage } from "@/components/LandingPage";
+import { DemoProvider } from "@/contexts/DemoContext";
 
 const Index = () => {
   const [activeScreen, setActiveScreen] = useState("landing");
@@ -29,16 +30,18 @@ const Index = () => {
   const showNav = activeScreen !== "landing";
 
   return (
-    <div className="min-h-screen bg-background">
-      {showNav ? (
-        <div className="max-w-md mx-auto p-6">
-          {renderScreen()}
-        </div>
-      ) : (
-        renderScreen()
-      )}
-      {showNav && <BottomNav activeScreen={activeScreen} onNavigate={setActiveScreen} />}
-    </div>
+    <DemoProvider>
+      <div className="min-h-screen bg-background">
+        {showNav ? (
+          <div className="max-w-md mx-auto p-6">
+            {renderScreen()}
+          </div>
+        ) : (
+          renderScreen()
+        )}
+        {showNav && <BottomNav activeScreen={activeScreen} onNavigate={setActiveScreen} />}
+      </div>
+    </DemoProvider>
   );
 };
 
