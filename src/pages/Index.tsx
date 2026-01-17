@@ -4,12 +4,15 @@ import { HomeScreen } from "@/components/screens/HomeScreen";
 import { FantasyScreen } from "@/components/screens/FantasyScreen";
 import { BettingScreen } from "@/components/screens/BettingScreen";
 import { DepositScreen } from "@/components/screens/DepositScreen";
+import { LandingPage } from "@/components/LandingPage";
 
 const Index = () => {
-  const [activeScreen, setActiveScreen] = useState("home");
+  const [activeScreen, setActiveScreen] = useState("landing");
 
   const renderScreen = () => {
     switch (activeScreen) {
+      case "landing":
+        return <LandingPage onGetStarted={() => setActiveScreen("home")} />;
       case "home":
         return <HomeScreen />;
       case "fantasy":
@@ -19,16 +22,22 @@ const Index = () => {
       case "deposit":
         return <DepositScreen />;
       default:
-        return <HomeScreen />;
+        return <LandingPage onGetStarted={() => setActiveScreen("home")} />;
     }
   };
 
+  const showNav = activeScreen !== "landing";
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-md mx-auto p-6">
-        {renderScreen()}
-      </div>
-      <BottomNav activeScreen={activeScreen} onNavigate={setActiveScreen} />
+      {showNav ? (
+        <div className="max-w-md mx-auto p-6">
+          {renderScreen()}
+        </div>
+      ) : (
+        renderScreen()
+      )}
+      {showNav && <BottomNav activeScreen={activeScreen} onNavigate={setActiveScreen} />}
     </div>
   );
 };
