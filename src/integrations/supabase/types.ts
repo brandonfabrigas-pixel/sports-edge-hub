@@ -14,7 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          text: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          text: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          text?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bets: {
+        Row: {
+          bet: string
+          created_at: string
+          game: string
+          id: string
+          odds: string
+          payout: number | null
+          platform: string
+          stake: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          bet: string
+          created_at?: string
+          game: string
+          id?: string
+          odds: string
+          payout?: number | null
+          platform: string
+          stake: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          bet?: string
+          created_at?: string
+          game?: string
+          id?: string
+          odds?: string
+          payout?: number | null
+          platform?: string
+          stake?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_platforms: {
+        Row: {
+          balance: number
+          connected: boolean
+          created_at: string
+          id: string
+          platform_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          connected?: boolean
+          created_at?: string
+          id?: string
+          platform_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          connected?: boolean
+          created_at?: string
+          id?: string
+          platform_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
