@@ -2,14 +2,12 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, AlertCircle, Plus, CheckCircle2, XCircle, RefreshCw, Loader2 } from "lucide-react";
-import { useUserDataContext } from "@/contexts/UserDataContext";
+import { TrendingUp, AlertCircle, Plus, CheckCircle2, XCircle } from "lucide-react";
+import { useDemo } from "@/contexts/DemoContext";
 import { NewBetModal } from "@/components/modals/NewBetModal";
-import { useLiveOdds } from "@/hooks/useLiveOdds";
 
 export const BettingScreen = () => {
-  const { bets, platforms, weeklyProfit, addBet, resolveBet, loading } = useUserDataContext();
-  const { odds, loading: oddsLoading, isDemo, refetch: refetchOdds } = useLiveOdds();
+  const { bets, platforms, weeklyProfit, addBet, resolveBet } = useDemo();
   const [newBetOpen, setNewBetOpen] = useState(false);
 
   const pendingBets = bets.filter(b => b.status === "pending");
@@ -18,27 +16,6 @@ export const BettingScreen = () => {
   const totalResolved = resolvedBets.length;
   const winRate = totalResolved > 0 ? Math.round((winCount / totalResolved) * 100) : 0;
   const roi = weeklyProfit > 0 ? Math.round((weeklyProfit / 500) * 100) : 0;
-
-  // Format platforms for the modal (adapt to new schema)
-  const formattedPlatforms = platforms.map(p => ({
-    id: p.id,
-    name: p.platform_name,
-    balance: p.balance,
-    connected: p.connected,
-  }));
-
-  const handleAddBet = async (bet: { game: string; bet: string; stake: number; odds: string; platform: string }) => {
-    await addBet(bet);
-    setNewBetOpen(false);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 pb-24">
@@ -73,54 +50,6 @@ export const BettingScreen = () => {
           </div>
         </div>
       </Card>
-
-      {/* Live Odds Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-semibold">Live Odds</h2>
-            {isDemo && (
-              <Badge variant="secondary" className="text-xs">Demo</Badge>
-            )}
-          </div>
-          <Button variant="ghost" size="sm" onClick={refetchOdds} disabled={oddsLoading}>
-            <RefreshCw className={`w-4 h-4 ${oddsLoading ? "animate-spin" : ""}`} />
-          </Button>
-        </div>
-
-        {oddsLoading ? (
-          <div className="flex justify-center py-4">
-            <Loader2 className="w-6 h-6 animate-spin text-primary" />
-          </div>
-        ) : odds.length === 0 ? (
-          <Card className="p-4 text-center text-muted-foreground">
-            No live odds available
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {odds.slice(0, 3).map((game) => (
-              <Card key={game.id} className="p-3">
-                <div className="text-sm font-medium text-foreground">
-                  {game.away_team} @ {game.home_team}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {new Date(game.commence_time).toLocaleString()}
-                </div>
-                {game.bookmakers[0]?.markets[0] && (
-                  <div className="flex gap-2 mt-2">
-                    {game.bookmakers[0].markets[0].outcomes.map((outcome, i) => (
-                      <Badge key={i} variant="outline" className="text-xs">
-                        {outcome.name}: {outcome.price > 0 ? "+" : ""}{outcome.price}
-                        {outcome.point !== undefined && ` (${outcome.point > 0 ? "+" : ""}${outcome.point})`}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -230,8 +159,8 @@ export const BettingScreen = () => {
       <NewBetModal
         open={newBetOpen}
         onClose={() => setNewBetOpen(false)}
-        onSubmit={handleAddBet}
-        platforms={formattedPlatforms}
+        onSubmit={addBet}
+        platforms={platforms}
       />
     </div>
   );

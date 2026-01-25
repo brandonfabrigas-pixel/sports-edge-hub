@@ -1,12 +1,9 @@
 import { DashboardCard } from "../DashboardCard";
-import { TrendingUp, Trophy, Wallet, Target, LogOut, Loader2 } from "lucide-react";
-import { useUserDataContext } from "@/contexts/UserDataContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
+import { TrendingUp, Trophy, Wallet, Target } from "lucide-react";
+import { useDemo } from "@/contexts/DemoContext";
 
 export const HomeScreen = () => {
-  const { bets, activities, totalBalance, weeklyProfit, loading } = useUserDataContext();
-  const { signOut, user } = useAuth();
+  const { bets, activities, totalBalance, weeklyProfit } = useDemo();
   
   const pendingBets = bets.filter(b => b.status === "pending").length;
   const winCount = bets.filter(b => b.status === "won").length;
@@ -16,28 +13,13 @@ export const HomeScreen = () => {
 
   const recentActivities = activities.slice(0, 5);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 pb-24">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Dashboard
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Welcome, {user?.email?.split("@")[0]}
-          </p>
-        </div>
-        <Button variant="ghost" size="icon" onClick={signOut}>
-          <LogOut className="w-5 h-5" />
-        </Button>
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          Dashboard
+        </h1>
+        <p className="text-muted-foreground">Your fantasy and betting overview</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -76,7 +58,7 @@ export const HomeScreen = () => {
         <div className="space-y-3">
           {recentActivities.length === 0 ? (
             <div className="p-4 bg-card rounded-lg border border-border text-center text-muted-foreground">
-              No recent activity - place your first bet!
+              No recent activity
             </div>
           ) : (
             recentActivities.map((activity) => (

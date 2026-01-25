@@ -1,39 +1,23 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, Building2, Plus, Settings, Loader2 } from "lucide-react";
-import { useUserDataContext } from "@/contexts/UserDataContext";
+import { Wallet, Building2, Plus, Settings } from "lucide-react";
+import { useDemo } from "@/contexts/DemoContext";
 import { DepositModal } from "@/components/modals/DepositModal";
 import { ConnectPlatformModal } from "@/components/modals/ConnectPlatformModal";
 
 export const DepositScreen = () => {
-  const { platforms, totalBalance, deposit, connectPlatform, disconnectPlatform, loading } = useUserDataContext();
+  const { platforms, totalBalance, deposit, connectPlatform, disconnectPlatform } = useDemo();
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [connectModalOpen, setConnectModalOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | undefined>();
 
   const connectedPlatforms = platforms.filter(p => p.connected);
 
-  // Format platforms for modals (adapt to new schema)
-  const formattedPlatforms = platforms.map(p => ({
-    id: p.id,
-    name: p.platform_name,
-    balance: p.balance,
-    connected: p.connected,
-  }));
-
   const handleDepositClick = (platformId?: string) => {
     setSelectedPlatform(platformId);
     setDepositModalOpen(true);
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 pb-24">
@@ -72,7 +56,7 @@ export const DepositScreen = () => {
                     <Building2 className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <div className="font-semibold text-foreground">{platform.platform_name}</div>
+                    <div className="font-semibold text-foreground">{platform.name}</div>
                     <div className="text-sm text-muted-foreground">Available balance</div>
                   </div>
                 </div>
@@ -119,7 +103,7 @@ export const DepositScreen = () => {
           setSelectedPlatform(undefined);
         }}
         onDeposit={deposit}
-        platforms={formattedPlatforms}
+        platforms={platforms}
         preselectedPlatform={selectedPlatform}
       />
 
@@ -128,7 +112,7 @@ export const DepositScreen = () => {
         onClose={() => setConnectModalOpen(false)}
         onConnect={connectPlatform}
         onDisconnect={disconnectPlatform}
-        platforms={formattedPlatforms}
+        platforms={platforms}
       />
     </div>
   );
